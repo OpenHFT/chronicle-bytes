@@ -31,7 +31,7 @@
     </parent>
 
     <artifactId>chronicle-bytes-benchmarks</artifactId>
-    <version>2.26ea-SNAPSHOT</version>
+    <version>2.26-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Bytes/Benchmarks</name>
     <description>Chronicle-Bytes-Benchmarks</description>
 
@@ -53,7 +53,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>2.26ea-SNAPSHOT</version>
+                <version>2.26-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

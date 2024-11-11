@@ -54,7 +54,7 @@ public class CheckOverSizedMessagesTest extends BytesTestCommon {
     public void writeRDI() {
         try (MappedBytes mb = mbNoOverlap()) {
             mb.writePosition(3 << 10);
-            RandomDataInput rdi = Bytes.allocateDirect(BYTE6K);
+            Bytes<?> rdi = Bytes.allocateDirect(BYTE6K);
             final BytesStore<?, Void> bs0 = mb.bytesStore();
             mb.write(rdi);
             final BytesStore<?, Void> bs2 = mb.bytesStore();

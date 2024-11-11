@@ -207,21 +207,6 @@ public class UncheckedBytes<U>
         return readPosition;
     }
 
-    @SuppressWarnings("deprecation")
-    @NotNull
-    @Override
-    public Bytes<U> write(@NotNull RandomDataInput bytes, @NonNegative long offset, @NonNegative long length)
-            throws BufferOverflowException, IllegalArgumentException, IllegalStateException, BufferUnderflowException {
-        requireNonNull(bytes);
-        if (length == 8) {
-            writeLong(bytes.readLong(offset));
-
-        } else {
-            super.write(bytes, offset, length);
-        }
-        return this;
-    }
-
     @NotNull
     @Override
     public Bytes<U> write(@NotNull BytesStore<?, ?> bytes, @NonNegative long offset, @NonNegative long length)
@@ -248,10 +233,6 @@ public class UncheckedBytes<U>
     public Bytes<U> append8bit(@NotNull CharSequence cs)
             throws BufferOverflowException, BufferUnderflowException, IllegalStateException {
         requireNonNull(cs);
-        if (cs instanceof RandomDataInput) {
-            return write((RandomDataInput) cs);
-        }
-
         int length = cs.length();
         long offset = writeOffsetPositionMoved(length);
         for (int i = 0; i < length; i++) {

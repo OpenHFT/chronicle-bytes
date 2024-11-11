@@ -121,8 +121,6 @@ final class BytesPrimitiveParameterTest { // too hard to ensure resources are re
                 NamedConsumer.of(b -> b.write(1, bs, -1, 1), "write(1, bs, -1, 1)"),
                 NamedConsumer.of(b -> b.write(1, bs, 1, -1), "write(1, bs, 1, -1)"),
                 NamedConsumer.of(b -> b.write(1, bs, 1, -1), "write(1, bs, 1, -1)"),
-                NamedConsumer.of(b -> b.write((RandomDataInput) bs, 1, -1), "write(rdi, 1, -1)"),
-                NamedConsumer.of(b -> b.write((RandomDataInput) bs, -1, 1), "write(rdi, -1, 1)"),
                 NamedConsumer.of(b -> b.write(SILLY_NAME, -1, 1), "write(cs, -1, 1)"),
                 NamedConsumer.of(b -> b.write(SILLY_NAME, 1, -1), "write(cs, -1, 1)"),
                 NamedConsumer.of(b -> b.writeUtf8(-1, SILLY_NAME), "writeUtf8(-1, cs)"),

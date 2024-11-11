@@ -36,12 +36,6 @@ import java.lang.annotation.Target;
  * <p>Example:
  * <pre>
  * public class Record {
- *     &#64;FieldGroup("header")
- *     private int headerField1;
- *
- *     &#64;FieldGroup("header")
- *     private int headerField2;
- *
  *     &#64;FieldGroup("body")
  *     private int bodyField1, bodyField2;
  * }
@@ -50,11 +44,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface FieldGroup {
-    /**
-     * Special FieldGroup that if it is present, must be at the start but is ignored.
-     */
-    @Deprecated(/* doesn't work across OpenJDK and Zing, to be removed in x.27 */)
-    String HEADER = "header";
 
     /**
      * Defines the name of the field group. Multiple fields with the same {@code value} are considered

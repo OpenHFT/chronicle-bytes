@@ -821,21 +821,6 @@ public interface StreamingDataInput<S extends StreamingDataInput<S>> extends Str
     }
 
     /**
-     * Reads data from the input stream into the provided object.
-     *
-     * @param o      the object to fill with the read data
-     * @param length the number of bytes to read
-     * @throws BufferUnderflowException       If there's not enough data to read
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     */
-    @Deprecated(/* for removal in x.27 */)
-    default void unsafeReadObject(@NotNull Object o, @NonNegative int length)
-            throws BufferUnderflowException, ClosedIllegalStateException, ThreadingIllegalStateException {
-        unsafeReadObject(o, BytesUtil.triviallyCopyableStart(o.getClass()), length);
-    }
-
-    /**
      * Reads data from the input stream into the provided object, starting from the given offset.
      *
      * @param o      the object to fill with the read data

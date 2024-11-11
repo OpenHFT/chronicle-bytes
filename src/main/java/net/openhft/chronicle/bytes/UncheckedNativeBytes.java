@@ -287,38 +287,6 @@ public class UncheckedNativeBytes<U>
         return readPosition;
     }
 
-    @SuppressWarnings("deprecation")
-    @NotNull
-    @Override
-    public Bytes<U> write(@NotNull RandomDataInput bytes, @NonNegative long offset, @NonNegative long length)
-            throws BufferUnderflowException, BufferOverflowException, IllegalStateException {
-        ReferenceCountedUtil.throwExceptionIfReleased(bytes);
-        requireNonNegative(offset);
-        requireNonNegative(length);
-        if (length == 8) {
-            writeLong(bytes.readLong(offset));
-
-        } else if (length >= 16 && bytes.isDirectMemory()) {
-            rawCopy(bytes, offset, length);
-
-        } else {
-            BytesInternal.writeFully(bytes, offset, length, this);
-        }
-        return this;
-    }
-
-    private long rawCopy(@NotNull RandomDataInput bytes, @NonNegative long offset, @NonNegative long length)
-            throws BufferOverflowException, BufferUnderflowException, IllegalStateException {
-        long len = Math.min(writeRemaining(), Math.min(bytes.capacity() - offset, length));
-        if (len > 0) {
-            writeCheckOffset(writePosition(), len);
-            this.throwExceptionIfReleased();
-            OS.memory().copyMemory(bytes.addressForRead(offset), addressForWritePosition(), len);
-            writeSkip(len);
-        }
-        return len;
-    }
-
     @Override
     @NotNull
     public Bytes<U> clear() {
@@ -1047,16 +1015,6 @@ public class UncheckedNativeBytes<U>
     @Override
     public void lastNumberHadDigits(boolean lastNumberHadDigits) {
         this.lastNumberHadDigits = lastNumberHadDigits;
-    }
-
-    @SuppressWarnings("deprecation")
-    @NotNull
-    @Override
-    public Bytes<U> write(@NotNull RandomDataInput bytes)
-            throws IllegalStateException {
-        assert bytes != this : "you should not write to yourself !";
-
-        return write(bytes, bytes.readPosition(), Math.min(writeRemaining(), bytes.readRemaining()));
     }
 
     @Override

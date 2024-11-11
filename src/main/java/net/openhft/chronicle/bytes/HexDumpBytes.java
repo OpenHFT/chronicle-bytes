@@ -1766,42 +1766,11 @@ public class HexDumpBytes
         }
     }
 
-    @SuppressWarnings("deprecation")
-    @NotNull
-    @Override
-    public Bytes<Void> write(@NotNull RandomDataInput bytes) throws IllegalStateException, BufferOverflowException {
-        long pos = base.writePosition();
-        try {
-
-            base.write(bytes);
-            return this;
-        } finally {
-            copyToText(pos);
-        }
-    }
-
     @Override
     public Bytes<Void> write(@NotNull BytesStore<?, ?> bytes) throws IllegalStateException, BufferOverflowException {
         long pos = base.writePosition();
         try {
             base.write(bytes);
-            return this;
-
-        } finally {
-            copyToText(pos);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    @NotNull
-    @Override
-    public Bytes<Void> write(@NotNull RandomDataInput bytes, @NonNegative long offset, @NonNegative long length) throws BufferOverflowException, BufferUnderflowException, IllegalStateException, IllegalArgumentException {
-        throwExceptionIfReleased(bytes);
-        requireNonNegative(offset);
-        requireNonNegative(length);
-        long pos = base.writePosition();
-        try {
-            base.write(bytes, offset, length);
             return this;
 
         } finally {
@@ -1902,7 +1871,7 @@ public class HexDumpBytes
     }
 
     @Override
-    public void writeWithLength(@NotNull RandomDataInput bytes) throws IllegalStateException, BufferOverflowException {
+    public void writeWithLength(@NotNull BytesStore<?, ?> bytes) throws IllegalStateException, BufferOverflowException {
         long pos = base.writePosition();
         try {
             base.writeWithLength(bytes);

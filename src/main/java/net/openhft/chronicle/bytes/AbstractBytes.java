@@ -837,16 +837,6 @@ public abstract class AbstractBytes<U>
         return this;
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    @NotNull
-    public Bytes<U> write(@NotNull final RandomDataInput bytes)
-            throws ClosedIllegalStateException, BufferOverflowException, ThreadingIllegalStateException {
-        assert bytes != this : "you should not write to yourself !";
-
-        return write(bytes, bytes.readPosition(), Math.min(writeLimit() - writePosition(), bytes.readRemaining()));
-    }
-
     public Bytes<U> write(@NotNull BytesStore<?, ?> bytes)
             throws BufferOverflowException, ClosedIllegalStateException, ThreadingIllegalStateException {
         assert bytes != this : "you should not write to yourself !";

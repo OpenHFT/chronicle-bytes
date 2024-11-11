@@ -683,30 +683,6 @@ public interface StreamingDataOutput<S extends StreamingDataOutput<S>> extends S
             throws BufferOverflowException, ClosedIllegalStateException, ThreadingIllegalStateException;
 
     /**
-     * Writes all available data from the specified {@code RandomDataInput} into the output stream.
-     * The position of this output stream is updated accordingly, but the read position of the input data is not changed.
-     * The operation will fail if there is not enough space left in the output stream.
-     *
-     * @param bytes the {@code RandomDataInput} from which data is read.
-     * @return The current StreamingDataOutput instance.
-     * @throws IllegalArgumentException       If the provided {@code bytes} is {@code null}.
-     * @throws BufferOverflowException        If there is not enough space left in the output stream.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     */
-    @Deprecated(/* to be removed in x.27, use write(BytesStore) */)
-    @NotNull
-    default S write(@NotNull RandomDataInput bytes)
-            throws BufferOverflowException, ClosedIllegalStateException, ThreadingIllegalStateException {
-        assert bytes != this : "you should not write to yourself !";
-        requireNonNull(bytes);
-
-        if (bytes.readRemaining() > writeRemaining())
-            throw new BufferOverflowException();
-        return write(bytes, bytes.readPosition(), bytes.readRemaining());
-    }
-
-    /**
      * Writes all available data from the specified {@code BytesStore} into the output stream.
      * The position of this output stream is updated accordingly, but the read position of the input data is not changed.
      * The operation will fail if there is not enough space left in the output stream.
@@ -759,29 +735,6 @@ public interface StreamingDataOutput<S extends StreamingDataOutput<S>> extends S
      */
     default boolean canWriteDirect(long count) {
         return false;
-    }
-
-    /**
-     * Writes the specified number of bytes from the provided {@code RandomDataInput} object into the output stream,
-     * starting from the given read offset.
-     * The position of this output stream is updated accordingly, but the read position of the input data is not changed.
-     *
-     * @param bytes      the {@code RandomDataInput} from which data is read.
-     * @param readOffset the offset at which reading from the {@code RandomDataInput} starts.
-     * @param length     the number of bytes to write.
-     * @return The current StreamingDataOutput instance.
-     * @throws BufferOverflowException     If there is not enough space left in the output stream.
-     * @throws BufferUnderflowException    If there is not enough data available in the input.
-     * @throws IllegalArgumentException    If the {@code readOffset} or {@code length} are invalid.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     */
-    @NotNull
-    @Deprecated(/* to be removed in x.27, use write(BytesStore, long, long) */)
-    default S write(@NotNull RandomDataInput bytes, @NonNegative long readOffset, @NonNegative long length)
-            throws BufferOverflowException, BufferUnderflowException, ClosedIllegalStateException, IllegalArgumentException, ThreadingIllegalStateException {
-        BytesInternal.writeFully(bytes, readOffset, length, this);
-        return (S) this;
     }
 
     /**
@@ -851,22 +804,6 @@ public interface StreamingDataOutput<S extends StreamingDataOutput<S>> extends S
     S write(final byte[] byteArray,
             @NonNegative final int offset,
             @NonNegative final int length) throws BufferOverflowException, ClosedIllegalStateException, IllegalArgumentException, ArrayIndexOutOfBoundsException, ThreadingIllegalStateException;
-
-    /**
-     * Writes the memory content of an object to this output stream.
-     *
-     * @param o      The object whose memory content is to be written.
-     * @param length The length (in bytes) of the object's content to write.
-     * @return The current StreamingDataOutput instance.
-     * @throws BufferOverflowException        If there is not enough space left in the output stream.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     */
-    @Deprecated(/* for removal in x.27 */)
-    default S unsafeWriteObject(Object o, @NonNegative int length)
-            throws BufferOverflowException, ClosedIllegalStateException, ThreadingIllegalStateException {
-        return unsafeWriteObject(o, BytesUtil.triviallyCopyableStart(o.getClass()), length);
-    }
 
     /**
      * Writes the memory content of an object to this output stream from a specific offset.
@@ -1248,9 +1185,23 @@ public interface StreamingDataOutput<S extends StreamingDataOutput<S>> extends S
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    default void writeWithLength(@NotNull RandomDataInput bytes)
+    default void writeWithLength(@NotNull BytesStore<?, ?> bytes)
             throws BufferOverflowException, ClosedIllegalStateException, ThreadingIllegalStateException {
         writeStopBit(bytes.readRemaining());
         write(bytes);
+    }
+
+    /**
+     * Writes data from the provided RandomDataInput into this Bytes object with prefixed length.
+     *
+     * @param bytes The RandomDataInput source of data to be written.
+     * @throws BufferOverflowException        If there is not enough space in this Bytes object to store the incoming data.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     */
+    @Deprecated(/* to be removed in x.29 */)
+    default void writeWithLength(@NotNull RandomDataInput bytes)
+            throws BufferOverflowException, ClosedIllegalStateException, ThreadingIllegalStateException {
+        writeWithLength((BytesStore<?, ?>) bytes);
     }
 }

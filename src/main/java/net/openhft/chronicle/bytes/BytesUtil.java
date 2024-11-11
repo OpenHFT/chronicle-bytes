@@ -136,12 +136,6 @@ public enum BytesUtil {
         int max = 0;
         for (Field field : fields) {
             final FieldGroup fieldGroup = Jvm.findAnnotation(field, FieldGroup.class);
-
-            @SuppressWarnings("deprecation")
-            String header = FieldGroup.HEADER;
-
-            if (fieldGroup != null && header.equals(fieldGroup.value()))
-                continue;
             int start = (int) MEMORY.objectFieldOffset(field);
             int size = sizeOf(field.getType());
             int end = start + size;
@@ -511,27 +505,6 @@ public enum BytesUtil {
     public static void appendUtf8(@NotNull StreamingDataOutput out, @NotNull CharSequence cs)
             throws IndexOutOfBoundsException, ClosedIllegalStateException, ThreadingIllegalStateException {
         BytesInternal.appendUtf8(out, cs, 0, cs.length());
-    }
-
-    /**
-     * Appends bytes from a specified start position of a Bytes object to a StringBuilder.
-     *
-     * @param bytes         The Bytes object.
-     * @param startPosition The start position in the Bytes object.
-     * @param sb            The StringBuilder to append to.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way.
-     */
-    @Deprecated(/* to be removed in x.27 */)
-    public static void appendBytesFromStart(@NotNull Bytes<?> bytes, @NonNegative long startPosition, @NotNull StringBuilder sb)
-            throws IllegalStateException {
-        try {
-            BytesInternal.parse8bit(startPosition, bytes, sb, (int) (bytes.readPosition() - startPosition));
-            sb.append('\u2016');
-            sb.append(bytes);
-        } catch (IOException | BufferUnderflowException e) {
-            throw new IORuntimeException(e);
-        }
     }
 
     /**

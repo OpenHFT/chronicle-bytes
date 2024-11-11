@@ -63,7 +63,6 @@ public class BytesFieldInfo {
      *
      * @param aClass the class to analyze
      */
-    @SuppressWarnings("deprecation")
     BytesFieldInfo(Class<?> aClass) {
         this.aClass = aClass;
         List<Field> fields = fields(aClass);
@@ -73,8 +72,6 @@ public class BytesFieldInfo {
         int ints = 0;
         int shorts = 0;
         int bytes = 0;
-        boolean nonHeader = false;
-        boolean hasHeader = false;
         for (int i = 0; i <= fields.size(); i++) {
             final Field field = i == fields.size() ? $END$ : fields.get(i);
             boolean matches = false;
@@ -85,13 +82,6 @@ public class BytesFieldInfo {
                 FieldGroup fieldGroup = Jvm.findAnnotation(field, FieldGroup.class);
                 if (fieldGroup != null) {
                     prefix = fieldGroup.value();
-                    if (prefix.equals(FieldGroup.HEADER)) {
-                        hasHeader = true;
-                        if (nonHeader)
-                            throw new IllegalStateException("The " + FieldGroup.HEADER + " FieldGroup must be at the start");
-                        continue;
-                    }
-                    nonHeader = true;
                     position = MEMORY.getFieldOffset(field);
                     matches = prefix.equals(prefix0);
                 }
@@ -101,15 +91,12 @@ public class BytesFieldInfo {
                         bytes++;
                         break;
                     case 2:
-                        assert !hasHeader || bytes == 0;
                         shorts++;
                         break;
                     case 4:
-                        assert !hasHeader || (shorts == 0 && bytes == 0);
                         ints++;
                         break;
                     case 8:
-                        assert !hasHeader || (ints == 0 && shorts == 0 && bytes == 0);
                         longs++;
                         break;
                     default:

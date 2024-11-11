@@ -98,20 +98,6 @@ public abstract class CommonMappedBytes extends MappedBytes {
     }
 
     @NotNull
-    @Override
-    public CommonMappedBytes write(@NotNull final RandomDataInput bytes)
-            throws ClosedIllegalStateException, BufferOverflowException {
-        requireNonNull(bytes);
-        throwExceptionIfClosed();
-
-        assert bytes != this : "you should not write to yourself !";
-        final long remaining = bytes.readRemaining();
-        write(writePosition(), bytes);
-        uncheckedWritePosition(writePosition() + remaining);
-        return this;
-    }
-
-    @NotNull
     public CommonMappedBytes write(@NonNegative final long offsetInRDO, @NotNull final RandomDataInput bytes)
             throws BufferOverflowException, ClosedIllegalStateException {
         requireNonNegative(offsetInRDO);
@@ -230,25 +216,6 @@ public abstract class CommonMappedBytes extends MappedBytes {
     protected void performRelease() throws ClosedIllegalStateException {
         super.performRelease();
         mappedFile.release(this);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    @NotNull
-    public Bytes<Void> write(@NotNull final RandomDataInput bytes,
-                             @NonNegative final long offset,
-                             @NonNegative final long length)
-            throws BufferUnderflowException, BufferOverflowException, ClosedIllegalStateException, ThreadingIllegalStateException {
-        requireNonNull(bytes);
-        requireNonNegative(offset);
-        requireNonNegative(length);
-        throwExceptionIfClosed();
-
-        if (length == 8)
-            writeLong(bytes.readLong(offset));
-        else if (length > 0)
-            BytesInternal.writeFully(bytes, offset, length, this);
-        return this;
     }
 
     @NotNull

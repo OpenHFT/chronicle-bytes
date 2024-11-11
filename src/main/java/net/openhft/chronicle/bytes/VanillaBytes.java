@@ -309,21 +309,6 @@ public class VanillaBytes<U>
     }
 
     @SuppressWarnings("deprecation")
-    @NotNull
-    @Override
-    public Bytes<U> write(@NotNull RandomDataInput bytes, @NonNegative long offset, @NonNegative long length)
-            throws BufferOverflowException, BufferUnderflowException, ClosedIllegalStateException, IllegalArgumentException, ThreadingIllegalStateException {
-        requireNonNull(bytes);
-        if ((offset | length) < 0) {
-            requireNonNegative(offset);
-            requireNonNegative(length);
-        }
-        ensureCapacity(writePosition() + length);
-        optimisedWrite(bytes, offset, length);
-        return this;
-    }
-
-    @SuppressWarnings("deprecation")
     protected void optimisedWrite(@NotNull RandomDataInput bytes, @NonNegative long offset, @NonNegative long length)
             throws BufferOverflowException, BufferUnderflowException, ClosedIllegalStateException, IllegalArgumentException, ThreadingIllegalStateException {
         requireNonNull(bytes);
@@ -339,7 +324,7 @@ public class VanillaBytes<U>
                 writeSkip(len);
             }
         } else {
-            super.write(bytes, offset, length);
+            BytesInternal.writeFully(bytes, offset, length, this);
         }
     }
 
@@ -439,8 +424,6 @@ public class VanillaBytes<U>
     public Bytes<U> append8bit(@NotNull CharSequence cs)
             throws BufferOverflowException, BufferUnderflowException, IndexOutOfBoundsException, ClosedIllegalStateException, ThreadingIllegalStateException {
         requireNonNull(cs);
-        if (cs instanceof RandomDataInput)
-            return write((RandomDataInput) cs);
 
         if (isDirectMemory() && cs instanceof String && this.bytesStore instanceof NativeBytesStore)
             return append8bitNBSS((String) cs);

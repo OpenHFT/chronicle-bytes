@@ -29,7 +29,7 @@
     </parent>
 
     <artifactId>chronicle-bytes</artifactId>
-    <version>2.26ea2-SNAPSHOT</version>
+    <version>2.26.3-SNAPSHOT</version>
     <name>OpenHFT/Chronicle Bytes</name>
     <description>Chronicle-Bytes</description>
     <packaging>bundle</packaging>
@@ -52,7 +52,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>2.26ea-SNAPSHOT</version>
+                <version>2.26-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

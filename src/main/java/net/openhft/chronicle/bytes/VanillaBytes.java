@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static net.openhft.chronicle.core.util.Longs.requireNonNegative;
@@ -547,27 +548,42 @@ public class VanillaBytes<U>
         @Nullable final Memory memory = bytesStore.memory;
         int length = (int)
                 Math.min(Bytes.MAX_HEAP_CAPACITY, realReadRemaining());
-        @NotNull char[] chars = new char[length];
+        @NotNull byte[] byteData = new byte[length];
         final long address = bytesStore.address + bytesStore.translate(readPosition());
         for (int i = 0; i < length && i < realCapacity(); i++)
-            chars[i] = (char) (memory.readByte(address + i) & 0xFF);
+            byteData[i] = memory.readByte(address + i);
 
-        return StringUtils.newString(chars);
+        return getString(byteData);
     }
 
     @NotNull
     protected String toString0()
             throws ClosedIllegalStateException {
         int length = (int) Math.min(Bytes.MAX_HEAP_CAPACITY, readRemaining());
-        @NotNull char[] chars = new char[length];
+        @NotNull byte[] byteData = new byte[length];
         try {
             for (int i = 0; i < length; i++) {
-                chars[i] = (char) (bytesStore.readByte(readPosition() + i) & 0xFF);
+                byteData[i] = (bytesStore.readByte(readPosition() + i));
             }
         } catch (BufferUnderflowException e) {
             // ignored
         }
-        return StringUtils.newString(chars);
+        return getString(byteData);
+    }
+
+    private static @NotNull String getString(@NotNull byte @NotNull [] byteData) {
+        String utf8String = new String(byteData, StandardCharsets.UTF_8);
+        // Validate UTF-8 string (optional if UTF-8 guarantees correctness)
+        if (isValidUtf8(utf8String)) {
+            return utf8String;
+        }
+        return new String(byteData, StandardCharsets.ISO_8859_1);
+    }
+
+    private static boolean isValidUtf8(String utf8String) {
+        // Basic UTF-8 validation (optional)
+        // Check if string contains replacement characters, which indicates decoding issues
+        return !utf8String.contains("\uFFFD");
     }
 
     @NotNull

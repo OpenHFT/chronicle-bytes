@@ -105,7 +105,8 @@ public class NativeBytesTest extends BytesTestCommon {
         assertEquals("Δ", sb.toString());
 
         b.readPosition(0);
-        assertEquals(new String(bytes, ISO_8859_1), b.toString());
+        // UTF-8 string has been written to the buffer so try and read it back
+        assertEquals(new String(bytes, StandardCharsets.UTF_8), b.toString());
         b.releaseLast();
     }
 

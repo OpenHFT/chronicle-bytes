@@ -720,6 +720,19 @@ public interface BytesStore<B extends BytesStore<B, U>, U>
     }
 
     /**
+     * Returns the content of this BytesStore as a UTF-8 string.
+     *
+     * @return a String from the content of this BytesStore
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way.
+     */
+    @NotNull
+    default String toUtf8String()
+            throws ClosedIllegalStateException, ThreadingIllegalStateException {
+        return BytesInternal.toUtf8String(this);
+    }
+
+    /**
      * Perform a <i>not</i> atomic add and get operation for an unsigned byte value. This method
      * <i>does not</i> check for unsigned byte overflow.
      *

@@ -1141,6 +1141,16 @@ Wire can be used for most of the tests even if you intend to use Bytes for produ
 
 The above table provides a clear comparison of the various memory access features supported by ByteBuffer, Netty IOBuffer, Aeron UnsafeBuffer, and Chronicle Bytes.
 
+== Converting bytes instances to string
+
+`Bytes` instances provided a number of `toString` methods depending on the encoding of the data within the buffer. As `Bytes` supports encoding of string data in both ISO-8859-1 and UTF-8, you will need to pick an appropriate `toString` method based on the encoding of the data within the buffer.
+
+`toString` methods provided:
+
+* `toString` renders the bytes as if they were ISO-8859-1 encoded.
+* `to8bitString` renders the bytes as if they were ISO-8859-1 encoded.
+* `toUtf8String` renders the bytes as if they were UTF-8 encoded.
+
 == Utilizing Memory Mapped Files
 
 Memory mapped files function like Bytes instances, expanding as required.
@@ -1173,3 +1183,4 @@ image::/docs/images/customize-data-views.png[]
 === Note on Code Coverage
 
 When conducting code coverage, it may be beneficial to exclude `AbstractBytes` as it can significantly reduce the execution speed of unit tests.
+

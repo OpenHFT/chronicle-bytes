@@ -51,6 +51,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -1528,6 +1529,52 @@ enum BytesInternal {
                 }
         }
         return StringUtils.newString(chars);
+    }
+
+    /**
+     * Represent the bytes store as a UTF-8 string.
+     * Heavily based on the approach used in {@link VanillaBytes#toString()} but with UTF-8 support.
+     *
+     * @return UTF-8 string representation of the bytes store.
+     */
+    public static String toUtf8String(BytesStore<?, ?> bytesStore) {
+        try {
+            try {
+                return bytesStore instanceof NativeBytesStore
+                        ? toUtf8StringNativeBytes((NativeBytesStore<?>) bytesStore)
+                        : toUtf8StringBytesStore(bytesStore);
+            } catch (IllegalStateException e) {
+                throw Jvm.rethrow(e);
+            }
+        } catch (Exception e) {
+            return e.toString();
+        }
+    }
+
+    private static String toUtf8StringNativeBytes(NativeBytesStore<?> bytesStore) {
+        final Memory memory = bytesStore.memory;
+        int length = (int)
+                Math.min(Bytes.MAX_HEAP_CAPACITY, bytesStore.realReadRemaining());
+        byte[] bytes = new byte[length];
+        final long address = bytesStore.address + bytesStore.translate(bytesStore.readPosition());
+        for (int i = 0; i < length && i < bytesStore.realCapacity(); i++) {
+            bytes[i] = memory.readByte(address + i);
+        }
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    private static String toUtf8StringBytesStore(BytesStore<?, ?> bytesStore)
+            throws ClosedIllegalStateException {
+        int length = (int) Math.min(Bytes.MAX_HEAP_CAPACITY, bytesStore.readRemaining());
+        byte[] bytes = new byte[length];
+        try {
+            for (int i = 0; i < length; i++) {
+                bytes[i] = (bytesStore.readByte(bytesStore.readPosition() + i));
+            }
+        } catch (BufferUnderflowException e) {
+            // ignored
+        }
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     @NotNull

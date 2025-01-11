@@ -245,6 +245,64 @@ public class MappedFileTest extends BytesTestCommon {
         file.deleteOnExit();
     }
 
+    @Test
+    public void testSlicePositions()
+            throws IOException {
+
+        assumeFalse(OS.isWindows());
+
+        final long chunkSize = OS.pageSize() * 64;
+        final long overlapSize = OS.pageSize();
+
+        // in the first chunk.
+        final Long firstPos = chunkSize / 2;
+
+        // in the first overlap
+        final Long secondPos = chunkSize + (overlapSize / 2);
+
+        // span the overlap and next chunk
+        final Long thirdPos = chunkSize + overlapSize - 4;
+
+        // need a file to read
+        final File inFile = Files.createTempFile("testSlicePositions-inFile", "deleteme").toFile();
+        inFile.deleteOnExit();
+
+        try (MappedBytes bytes = MappedBytes.mappedBytes(inFile, chunkSize)) {
+            // write in the middle of two different chunks
+            bytes.writeLong(firstPos, 12345);
+            bytes.writeLong(secondPos, 54321);
+            bytes.writeLong(thirdPos, 87654);
+            // set the file length
+            bytes.writeLong(chunkSize * 4, 1010101);
+        }
+
+        try (MappedBytes root = MappedBytes.mappedBytes(inFile, chunkSize, overlapSize, true)) {
+
+            // BUG 1 : must read first, or exception
+            if(false) {
+                assertEquals(12345, root.readLong(firstPos));
+            }
+            Bytes<Void> slice = root.bytesForRead();
+
+            slice.readPositionRemaining(secondPos, 8);
+            // BUG 2 : readPosion fails, PositionRemaining works
+            if (false) {
+                root.readPositionRemaining(thirdPos, 8);
+            } else {
+                root.readPosition(thirdPos);
+            }
+            long rootPos = root.readPosition();
+
+            Assert.assertEquals(54321, slice.readLong());
+
+            Assert.assertEquals(rootPos, root.readPosition());
+            assertEquals(87654, root.readLong());
+
+            slice.releaseLast();
+        }
+
+    }
+
     @After
     public void clearInterrupt() {
         Thread.interrupted();
